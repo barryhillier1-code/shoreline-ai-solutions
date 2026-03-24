@@ -230,6 +230,24 @@
     <p class="mt-2">709-641-1028 • Barry.hillier1@icloud.com</p>
     <p class="mt-8 text-sm">© 2026 Shoreline AI Solutions</p>
   </footer>
+<div id="shoreline-chat-wrapper" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <button id="chat-open-btn" style="background: #0056b3; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 24px;">
+        💬
+    </button>
 
+    <div id="chat-window" style="display: none; width: 320px; height: 450px; background: white; border-radius: 12px; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.2); overflow: hidden; margin-bottom: 15px;">
+        <div style="background: #0056b3; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+            <span>Shoreline AI Assistant</span>
+            <button id="chat-close-btn" style="background: none; border: none; color: white; cursor: pointer;">✕</button>
+        </div>
+        <div id="chat-content" style="flex: 1; padding: 15px; overflow-y: auto; font-size: 14px; background: #f9f9f9;">
+            <div style="margin-bottom: 10px; color: #555;"><i>Hi! I'm Barry's AI assistant. How can I help your Clarenville business today?</i></div>
+        </div>
+        <div style="padding: 10px; border-top: 1px solid #eee; display: flex;">
+            <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none;">
+            <button id="chat-send-btn" style="margin-left: 8px; background: #0056b3; color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer;">Send</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
