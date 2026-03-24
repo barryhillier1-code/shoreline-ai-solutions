@@ -249,5 +249,24 @@
         </div>
     </div>
 </div>
+  <script>
+    // 1. Grab the elements
+    const openBtn = document.getElementById('chat-open-btn');
+    const closeBtn = document.getElementById('chat-close-btn');
+    const chatWindow = document.getElementById('chat-window');
+
+    // 2. Tell the button what to do when clicked
+    openBtn.addEventListener('click', function() {
+        console.log("Button clicked!"); // This helps us test
+        chatWindow.style.display = 'flex';
+        openBtn.style.display = 'none';
+    });
+
+    closeBtn.addEventListener('click', function() {
+        chatWindow.style.display = 'none';
+        openBtn.style.display = 'block';
+    });
+</script>
+
 </body>
 </html>
