@@ -1,0 +1,7 @@
+{
+  "name": "shoreline-ai-solutions",
+  "version": "1.0.0",
+  "description": "Shoreline AI Solutions static site",
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
