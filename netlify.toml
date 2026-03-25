@@ -1,4 +1,4 @@
 [build]
   base = "Shoreline AI"
   publish = "."
-  command = ""
+  command = "true"
