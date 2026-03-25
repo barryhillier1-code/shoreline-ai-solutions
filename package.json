@@ -1,3 +1,8 @@
+
+barry.hillier1@icloud.com
+1:46 PM (6 minutes ago)
+to me
+
 {
   "name": "shoreline-ai-solutions",
   "version": "1.0.0",
@@ -5,3 +10,4 @@
   "dependencies": {
     "openai": "^4.0.0"
   }
+}
