@@ -48,8 +48,14 @@
       background-attachment: fixed;
     }
     @media (max-width: 1024px) {
-      .hero-bg { background-attachment: scroll; }
-    }
+   .hero-bg {
+  background-image: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+                    url(images/hero.jpg);
+  background-size: 100% auto;        /* This pulls the zoom back */
+  background-position: center top;   /* Shows more of the top of the image */
+  background-attachment: fixed;
+}
+    
 
     /* Chat widget */
     #chat-open-btn, #chat-window > div:first-child {
