@@ -1,49 +1,100 @@
 const { OpenAI } = require("openai");
 
-// This is the "Personality" of your bot.
-// It tells the AI exactly who it is and what its prices are.
-const SYSTEM_PROMPT = `
-You are the AI Assistant for Shoreline AI Solutions, based in Clarenville, NL.
-Your founder is Barry.
-You help local small businesses (like restaurants and convenience stores) get online.
+const INSTRUCTIONS = `
+You are the Shoreline AI Assistant for Shoreline AI Solutions in Clarenville, Newfoundland.
+Barry runs the business. Your job is to help small local businesses understand what Shoreline offers and guide them toward contacting Barry.
 
-Key Information:
+What Shoreline offers:
+- New business websites for restaurants, shops, trades, and service businesses
+- Website redesigns for outdated sites or Facebook-only businesses
+- Local SEO for Clarenville and Newfoundland searches
+- Google Business Profile help and online visibility improvements
+- AI chatbots and simple business automations
+- Ongoing website updates, hosting, and maintenance
+
+Pricing to mention when relevant:
 - Basic Website Setup: $599
 - Pro AI-Integrated Site: $899
 - Monthly Maintenance/Hosting: $35
-- Special: Free mockups for Clarenville businesses.
-- Goal: Be professional but friendly.
-- Contact: Tell them to call Barry at 709-641-1028 to get started.
+- Free mockups are available for Clarenville businesses
+
+How to answer:
+- Be friendly, helpful, and concise
+- Speak in plain language for small business owners
+- Position yourself as strong in local SEO and small-business web development for Clarenville and nearby Newfoundland businesses
+- If asked about SEO, explain that Shoreline helps with metadata, content structure, mobile speed, local search visibility, and Google Business Profile setup
+- If asked what else Shoreline does, mention websites, redesigns, local SEO, Google Business Profile help, chatbots, automations, and ongoing updates
+- If someone sounds ready to start, invite them to call or text Barry at 709-641-1028 or use the website form
+- Do not invent services, features, clients, or guarantees that are not listed here
 `;
 
+function jsonResponse(statusCode, payload) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  };
+}
+
 exports.handler = async (event) => {
-  // Only allow POST requests
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return jsonResponse(405, { error: "Method Not Allowed" });
+  }
+
+  if (!process.env.XAI_API_KEY) {
+    console.error("Missing XAI_API_KEY for Shoreline chat function.");
+    return jsonResponse(500, {
+      error: "The chat assistant is not configured yet. Please call or text Barry at 709-641-1028 for now.",
+    });
   }
 
   try {
-    const { message } = JSON.parse(event.body);
+    const { message, history = [] } = JSON.parse(event.body || "{}");
+    const trimmedMessage = (message || "").trim();
 
-    // Netlify AI Gateway handles the keys automatically!
-    const openai = new OpenAI();
+    if (!trimmedMessage) {
+      return jsonResponse(400, { error: "Please send a message first." });
+    }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: message }
+    const sanitizedHistory = Array.isArray(history)
+      ? history
+          .filter((entry) => entry && (entry.role === "user" || entry.role === "assistant") && typeof entry.content === "string")
+          .slice(-6)
+          .map((entry) => ({
+            role: entry.role,
+            content: entry.content.trim().slice(0, 1000),
+          }))
+      : [];
+
+    const client = new OpenAI({
+      apiKey: process.env.XAI_API_KEY,
+      baseURL: "https://api.x.ai/v1",
+    });
+
+    const response = await client.responses.create({
+      model: "grok-4-1-fast",
+      temperature: 0.7,
+      max_output_tokens: 220,
+      instructions: INSTRUCTIONS,
+      input: [
+        ...sanitizedHistory,
+        { role: "user", content: trimmedMessage },
       ],
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ reply: response.choices[0].message.content }),
-    };
+    const reply = response.output_text?.trim();
+
+    if (!reply) {
+      throw new Error("xAI response did not include reply text.");
+    }
+
+    return jsonResponse(200, { reply });
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Barry is updating the system. Try again in a minute!" })
-    };
+    console.error("Shoreline chat function failed.", error);
+    return jsonResponse(500, {
+      error: "Barry is updating the chat assistant right now. Please try again in a minute, or call/text 709-641-1028.",
+    });
   }
 };
