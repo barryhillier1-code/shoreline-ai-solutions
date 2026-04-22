@@ -1,6 +1,6 @@
 const { OpenAI } = require("openai");
 
-const SYSTEM_PROMPT = `
+const INSTRUCTIONS = `
 You are the website chat assistant for Shoreline AI Solutions in Clarenville, Newfoundland.
 Barry runs the business. Your job is to help small local businesses understand what Shoreline offers and guide them toward contacting Barry.
 
@@ -42,8 +42,8 @@ exports.handler = async (event) => {
     return jsonResponse(405, { error: "Method Not Allowed" });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("Missing OPENAI_API_KEY for Shoreline chat function.");
+  if (!process.env.XAI_API_KEY) {
+    console.error("Missing XAI_API_KEY for Shoreline chat function.");
     return jsonResponse(500, {
       error: "The chat assistant is not configured yet. Please call or text Barry at 709-641-1028 for now.",
     });
@@ -67,25 +67,26 @@ exports.handler = async (event) => {
           }))
       : [];
 
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+    const client = new OpenAI({
+      apiKey: process.env.XAI_API_KEY,
+      baseURL: "https://api.x.ai/v1",
     });
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const response = await client.responses.create({
+      model: "grok-4-1-fast-non-reasoning",
       temperature: 0.7,
-      max_tokens: 220,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+      max_output_tokens: 220,
+      instructions: INSTRUCTIONS,
+      input: [
         ...sanitizedHistory,
         { role: "user", content: trimmedMessage },
       ],
     });
 
-    const reply = response.choices?.[0]?.message?.content?.trim();
+    const reply = response.output_text?.trim();
 
     if (!reply) {
-      throw new Error("OpenAI response did not include reply text.");
+      throw new Error("xAI response did not include reply text.");
     }
 
     return jsonResponse(200, { reply });
