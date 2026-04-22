@@ -321,7 +321,48 @@
       <h2 class="text-4xl font-bold mb-4">Ready for Your Free Mockup?</h2>
       <p class="text-xl mb-10">Send me a quick message and I'll reply within 24 hours with a free custom mockup for your business.</p>
 
-      <form name="quote-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="max-w-xl mx-auto bg-white text-stone-800 rounded-2xl p-8 shadow-lg text-left">
+      <div class="grid md:grid-cols-2 gap-6 text-left mb-10">
+        <div class="bg-white/10 border border-white/20 rounded-2xl p-6">
+          <p class="text-sm uppercase tracking-[0.2em] text-[#67E8CE] mb-3">Most Requested</p>
+          <h3 class="text-2xl font-bold mb-3">Website services for local businesses</h3>
+          <ul class="space-y-3 text-white/90">
+            <li>New websites for restaurants, shops, and service businesses</li>
+            <li>Website redesigns for outdated or Facebook-only businesses</li>
+            <li>Menus, service lists, photo galleries, maps, and contact forms</li>
+            <li>Mobile-friendly layouts built for customers on the go</li>
+            <li>Local SEO setup for Clarenville and Newfoundland searches</li>
+          </ul>
+        </div>
+        <div class="bg-white text-stone-800 rounded-2xl p-6 shadow-lg">
+          <p class="text-sm uppercase tracking-[0.2em] text-[#0F766E] mb-3">Add-Ons</p>
+          <h3 class="text-2xl font-bold mb-3">Ways I can help beyond the homepage</h3>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-xl bg-[#F0F9FF] p-4">
+              <p class="font-semibold">AI chat and automation</p>
+              <p class="text-sm text-stone-600 mt-1">Answer questions, capture leads, and save you time.</p>
+            </div>
+            <div class="rounded-xl bg-[#F0F9FF] p-4">
+              <p class="font-semibold">Google Business help</p>
+              <p class="text-sm text-stone-600 mt-1">Stronger local visibility with cleaner business info.</p>
+            </div>
+            <div class="rounded-xl bg-[#F0F9FF] p-4">
+              <p class="font-semibold">Ongoing edits</p>
+              <p class="text-sm text-stone-600 mt-1">Hours, specials, pricing, and seasonal updates.</p>
+            </div>
+            <div class="rounded-xl bg-[#F0F9FF] p-4">
+              <p class="font-semibold">Lead-focused forms</p>
+              <p class="text-sm text-stone-600 mt-1">Clearer inquiry flows so visitors know what to ask for.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-5 text-left mb-8">
+        <p class="font-semibold text-lg mb-2">Not sure what to ask for?</p>
+        <p class="text-white/90">Tell me what kind of business you run and what you want the site to do. If you are like Ron and just want to know what else I can help with, that is perfect too - I can recommend the best fit.</p>
+      </div>
+
+      <form id="quote-request-form" name="quote-request" method="POST" action="/?submitted=true#contact" data-netlify="true" netlify-honeypot="bot-field" class="max-w-xl mx-auto bg-white text-stone-800 rounded-2xl p-8 shadow-lg text-left">
         <input type="hidden" name="form-name" value="quote-request">
         <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
@@ -351,6 +392,21 @@
 
         <button type="submit" class="w-full btn-seafoam py-4 rounded-xl font-semibold text-xl transition-colors">Send Free Quote Request</button>
       </form>
+
+      <div id="quote-success-message" class="hidden max-w-xl mx-auto bg-white text-stone-800 rounded-2xl p-8 shadow-lg text-left" aria-live="polite">
+        <p class="text-sm uppercase tracking-[0.2em] text-[#0F766E] mb-3">Request Received</p>
+        <h3 id="quote-success-heading" class="text-3xl font-bold mb-4">Thanks - your request is in.</h3>
+        <p id="quote-success-body" class="text-lg text-stone-600 mb-5">I will review the details and reach out within 24 hours with the next best step for your business.</p>
+        <div class="rounded-xl bg-[#F0F9FF] p-5 mb-5">
+          <p class="font-semibold mb-2">What happens next</p>
+          <ul class="space-y-2 text-stone-600">
+            <li>Barry reviews your business details and requested service</li>
+            <li>You get a reply with the best fit, pricing, or a free mockup plan</li>
+            <li>If it is a quick question, you can still call or text 709-641-1028</li>
+          </ul>
+        </div>
+        <a href="#portfolio" class="inline-block btn-seafoam px-6 py-3 rounded-full font-semibold text-white">See recent examples</a>
+      </div>
 
       <p class="mt-10 text-xl">Or call/text me anytime: <a href="tel:7096411028" class="underline hover:text-[#67E8CE]">709-641-1028</a></p>
     </div>
@@ -422,6 +478,10 @@
     const chatWindow = document.getElementById('chat-window');
     const chatInput = document.getElementById('chat-input');
     const sendBtn = document.getElementById('chat-send-btn');
+    const quoteForm = document.getElementById('quote-request-form');
+    const quoteSuccessMessage = document.getElementById('quote-success-message');
+    const quoteSuccessHeading = document.getElementById('quote-success-heading');
+    const quoteSuccessBody = document.getElementById('quote-success-body');
 
     openBtn.addEventListener('click', () => {
       chatWindow.classList.remove('hidden');
@@ -439,6 +499,56 @@
     });
     chatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') sendBtn.click();
+    });
+
+    function showQuoteSuccess(name, service) {
+      const firstName = (name || '').trim().split(/\s+/)[0];
+      const chosenService = (service || '').trim();
+      quoteForm.classList.add('hidden');
+      quoteSuccessMessage.classList.remove('hidden');
+
+      if (firstName) {
+        quoteSuccessHeading.textContent = `Thanks, ${firstName} - your request is in.`;
+      } else {
+        quoteSuccessHeading.textContent = 'Thanks - your request is in.';
+      }
+
+      if (chosenService) {
+        quoteSuccessBody.textContent = `I will review your ${chosenService.toLowerCase()} request and reach out within 24 hours with the best next step for your business.`;
+      } else {
+        quoteSuccessBody.textContent = 'I will review the details and reach out within 24 hours with the next best step for your business.';
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('submitted') === 'true') {
+      showQuoteSuccess('', '');
+    }
+
+    quoteForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(quoteForm);
+      const name = formData.get('name');
+      const service = formData.get('service');
+
+      try {
+        const response = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData).toString()
+        });
+
+        if (!response.ok) {
+          throw new Error('Form submission failed');
+        }
+
+        showQuoteSuccess(name, service);
+        quoteForm.reset();
+        window.history.replaceState({}, '', '/?submitted=true#contact');
+      } catch (error) {
+        window.location.href = quoteForm.action;
+      }
     });
   </script>
 </body>
