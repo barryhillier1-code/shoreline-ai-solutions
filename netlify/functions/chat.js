@@ -1,6 +1,6 @@
 const { OpenAI } = require("openai");
 
-const INSTRUCTIONS = `
+const SYSTEM_PROMPT = `
 You are the Shoreline AI Assistant for Shoreline AI Solutions in Clarenville, Newfoundland.
 Barry runs the business. Your job is to help small local businesses understand what Shoreline offers and guide them toward contacting Barry.
 
@@ -73,18 +73,18 @@ exports.handler = async (event) => {
       baseURL: "https://api.x.ai/v1",
     });
 
-    const response = await client.responses.create({
+    const response = await client.chat.completions.create({
       model: "grok-4-1-fast",
       temperature: 0.7,
-      max_output_tokens: 220,
-      instructions: INSTRUCTIONS,
-      input: [
+      max_tokens: 220,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
         ...sanitizedHistory,
         { role: "user", content: trimmedMessage },
       ],
     });
 
-    const reply = response.output_text?.trim();
+    const reply = response.choices?.[0]?.message?.content?.trim();
 
     if (!reply) {
       throw new Error("xAI response did not include reply text.");
