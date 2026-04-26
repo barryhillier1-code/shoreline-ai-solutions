@@ -79,7 +79,7 @@ exports.handler = async (event) => {
     });
 
     const response = await client.responses.create({
-      model: "gpt-5.2",
+      model: "gpt-5.5",
       temperature: 0.7,
       max_output_tokens: 220,
       instructions: SYSTEM_PROMPT,
@@ -101,8 +101,13 @@ exports.handler = async (event) => {
     return jsonResponse(200, { reply });
   } catch (error) {
     console.error("Shoreline chat function failed.", error);
+
+    const quotaError = error?.status === 429 || error?.code === "insufficient_quota" || error?.error?.code === "insufficient_quota";
+
     return jsonResponse(500, {
-      error: "Barry is updating the chat assistant right now. Please try again in a minute, or call/text 709-641-1028.",
+      error: quotaError
+        ? "The chat assistant is temporarily offline while Barry updates its AI billing. Please call or text 709-641-1028 for now."
+        : "Barry is updating the chat assistant right now. Please try again in a minute, or call/text 709-641-1028.",
     });
   }
 };
