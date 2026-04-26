@@ -716,7 +716,7 @@
         appendChatMessage('assistant', data.reply);
         chatHistory.push({ role: 'assistant', content: data.reply });
       } catch (error) {
-        appendChatMessage('assistant', 'The live strategist reply is temporarily offline, but I can still help you get this to Barry quickly.');
+        appendChatMessage('assistant', 'AI responses are temporarily unavailable, but I can still help you get this to Barry quickly.');
         appendFallbackLeadCard(message);
         prefillLeadFormFromChat(message);
       } finally {
