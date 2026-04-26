@@ -54,7 +54,7 @@ exports.handler = async (event) => {
   if (!process.env.OPENAI_API_KEY) {
     console.error("Missing OPENAI_API_KEY for Shoreline chat function.");
     return jsonResponse(500, {
-      error: "The chat assistant is not configured yet. Please call or text Barry at 709-641-1028 for now.",
+      error: "AI responses are temporarily unavailable. Please call or text Barry at 709-641-1028 for now.",
     });
   }
 
@@ -108,8 +108,8 @@ exports.handler = async (event) => {
 
     return jsonResponse(500, {
       error: quotaError
-        ? "The chat assistant is temporarily offline while Barry updates its AI billing. Please call or text 709-641-1028 for now."
-        : "Barry is updating the chat assistant right now. Please try again in a minute, or call/text 709-641-1028.",
+        ? "AI responses are temporarily unavailable while Barry updates the AI billing. Please call or text 709-641-1028 for now."
+        : "AI responses are temporarily unavailable right now. Please try again in a minute, or call/text 709-641-1028.",
     });
   }
 };
