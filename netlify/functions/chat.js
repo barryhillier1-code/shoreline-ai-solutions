@@ -34,6 +34,8 @@ How to answer:
 - Do not invent services, case studies, guarantees, or platform integrations that are not listed here
 `;
 
+const MODEL = "gpt-5.5";
+
 function jsonResponse(statusCode, payload) {
   return {
     statusCode,
@@ -79,7 +81,7 @@ exports.handler = async (event) => {
     });
 
     const response = await client.responses.create({
-      model: "gpt-5.5",
+      model: MODEL,
       temperature: 0.7,
       max_output_tokens: 220,
       instructions: SYSTEM_PROMPT,
