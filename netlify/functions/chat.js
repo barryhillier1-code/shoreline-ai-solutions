@@ -49,8 +49,8 @@ exports.handler = async (event) => {
     return jsonResponse(405, { error: "Method Not Allowed" });
   }
 
-  if (!process.env.XAI_API_KEY) {
-    console.error("Missing XAI_API_KEY for Shoreline chat function.");
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("Missing OPENAI_API_KEY for Shoreline chat function.");
     return jsonResponse(500, {
       error: "The chat assistant is not configured yet. Please call or text Barry at 709-641-1028 for now.",
     });
@@ -70,30 +70,32 @@ exports.handler = async (event) => {
           .slice(-6)
           .map((entry) => ({
             role: entry.role,
-            content: entry.content.trim().slice(0, 1000),
+            content: [{ type: "input_text", text: entry.content.trim().slice(0, 1000) }],
           }))
       : [];
 
     const client = new OpenAI({
-      apiKey: process.env.XAI_API_KEY,
-      baseURL: "https://api.x.ai/v1",
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const response = await client.chat.completions.create({
-      model: "grok-4-1-fast",
+    const response = await client.responses.create({
+      model: "gpt-5.2",
       temperature: 0.7,
-      max_tokens: 220,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+      max_output_tokens: 220,
+      instructions: SYSTEM_PROMPT,
+      input: [
         ...sanitizedHistory,
-        { role: "user", content: trimmedMessage },
+        {
+          role: "user",
+          content: [{ type: "input_text", text: trimmedMessage }],
+        },
       ],
     });
 
-    const reply = response.choices?.[0]?.message?.content?.trim();
+    const reply = response.output_text?.trim();
 
     if (!reply) {
-      throw new Error("xAI response did not include reply text.");
+      throw new Error("OpenAI response did not include reply text.");
     }
 
     return jsonResponse(200, { reply });
