@@ -1,78 +1,67 @@
-const { OpenAI } = require("openai");
+const { OpenAI } = require('openai');
 
-const SYSTEM_PROMPT = `
-You are the Shoreline AI Lead Strategist for Shoreline AI Solutions in Clarenville, Newfoundland.
-You are Barry Hillier's autonomous sales and support agent. Your job is to demonstrate Shoreline's intelligence while helping local businesses in Clarenville and surrounding areas understand what Shoreline offers and guiding strong leads toward Barry.
+const SYSTEM_PROMPT =
+  'You are the highly professional, 24/7 AI assistant for Shoreline AI Solution, a premium web development agency based in Clarenville, Newfoundland. Your primary goal is to help local business owners understand the value of AI-driven web development, local SEO, and business automations. Answer questions concisely and confidently. Your ultimate objective is to gently collect their name, phone number, and a brief description of their business so Barry can reach out with a free mockup. Do not promise specific prices.';
 
-What Shoreline AI Solutions offers:
-- SEO-optimized websites for restaurants, retail shops, contractors, and service businesses
-- Website redesigns for outdated websites or Facebook-only businesses
-- Google Business Profile setup, optimization, and local search improvements
-- AI chatbots and business automation systems
-- 10-agent autonomous fleets for lead scouting, follow-ups, and repetitive support tasks
-- Ongoing website updates, hosting, and maintenance
-
-Pricing to mention when relevant:
-- Basic Website Setup: $599
-- Pro AI-Integrated Site: $899
-- Monthly Maintenance/Hosting: $35
-- Free mockups are available for Clarenville businesses
-
-How to answer:
-- Be punchy, grounded, professional, and focused on business growth
-- Speak like a local expert who understands Clarenville and nearby Newfoundland markets
-- Act like a consultant, not a generic chatbot: give insights about saving time, increasing visibility, and reducing manual work
-- If asked what you do, explain that you are a live example of a Shoreline AI lead strategist in action and that Shoreline can build similar AI systems for other businesses
-- Do not claim a specific model or backend that is not actually running live
-- If asked about SEO, explain that Shoreline helps with metadata, content structure, mobile speed, Google Business Profile setup, local search visibility, and conversion-focused site design
-- If asked about AI agents, explain that Shoreline can build autonomous fleets that scout leads, manage follow-ups, support Google Business Profile workflows, and reduce admin time
-- If someone expresses interest, ask for:
-  1. their business name
-  2. the manual task they want to automate, such as answering emails, finding leads, managing follow-ups, or updating listings
-- Once you have both pieces of information, tell them: "I've notified Barry. Since I'm part of the Shoreline fleet, he's already received your details and will reach out shortly."
-- If someone is ready to start right away, also invite them to call or text Barry at 709-641-1028 or use the website form
-- Do not invent services, case studies, guarantees, or platform integrations that are not listed here
-`;
-
-const MODEL = "gpt-5.5";
+const MODEL = 'gpt-3.5-turbo';
 
 function jsonResponse(statusCode, payload) {
   return {
     statusCode,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
     },
     body: JSON.stringify(payload),
   };
 }
 
+function normalizeReplyText(text) {
+  return text
+    .replace(/\u00A0/g, ' ')
+    .replace(/â|â€œ/g, '"')
+    .replace(/â|â€�/g, '"')
+    .replace(/â|â€˜/g, "'")
+    .replace(/â|â€™/g, "'")
+    .replace(/â|â€“/g, '-')
+    .replace(/â|â€”/g, '-')
+    .replace(/â¦|â€¦/g, '...')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return jsonResponse(405, { error: "Method Not Allowed" });
+  if (event.httpMethod !== 'POST') {
+    return jsonResponse(405, { error: 'Method Not Allowed' });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("Missing OPENAI_API_KEY for Shoreline chat function.");
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'insert_key_here') {
+    console.error('Missing OPENAI_API_KEY for Shoreline chat function.');
     return jsonResponse(500, {
-      error: "AI responses are temporarily unavailable. Please call or text Barry at 709-641-1028 for now.",
+      error: 'AI responses are temporarily unavailable. Please call or text Barry at 709-641-1028 for now.',
     });
   }
 
   try {
-    const { message, history = [] } = JSON.parse(event.body || "{}");
-    const trimmedMessage = (message || "").trim();
+    const { message, history = [] } = JSON.parse(event.body || '{}');
+    const trimmedMessage = (message || '').trim();
 
     if (!trimmedMessage) {
-      return jsonResponse(400, { error: "Please send a message first." });
+      return jsonResponse(400, { error: 'Please send a message first.' });
     }
 
     const sanitizedHistory = Array.isArray(history)
       ? history
-          .filter((entry) => entry && (entry.role === "user" || entry.role === "assistant") && typeof entry.content === "string")
+          .filter(
+            (entry) =>
+              entry &&
+              (entry.role === 'user' || entry.role === 'assistant') &&
+              typeof entry.content === 'string',
+          )
           .slice(-6)
           .map((entry) => ({
             role: entry.role,
-            content: [{ type: "input_text", text: entry.content.trim().slice(0, 1000) }],
+            content: entry.content.trim().slice(0, 1000),
           }))
       : [];
 
@@ -80,36 +69,41 @@ exports.handler = async (event) => {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const response = await client.responses.create({
+    const response = await client.chat.completions.create({
       model: MODEL,
-      temperature: 0.7,
-      max_output_tokens: 220,
-      instructions: SYSTEM_PROMPT,
-      input: [
+      max_tokens: 220,
+      messages: [
+        {
+          role: 'system',
+          content: SYSTEM_PROMPT,
+        },
         ...sanitizedHistory,
         {
-          role: "user",
-          content: [{ type: "input_text", text: trimmedMessage }],
+          role: 'user',
+          content: trimmedMessage,
         },
       ],
     });
 
-    const reply = response.output_text?.trim();
+    const reply = normalizeReplyText(response.choices?.[0]?.message?.content?.trim() || '');
 
     if (!reply) {
-      throw new Error("OpenAI response did not include reply text.");
+      throw new Error('OpenAI response did not include reply text.');
     }
 
     return jsonResponse(200, { reply });
   } catch (error) {
-    console.error("Shoreline chat function failed.", error);
+    console.error('Shoreline chat function failed.', error);
 
-    const quotaError = error?.status === 429 || error?.code === "insufficient_quota" || error?.error?.code === "insufficient_quota";
+    const quotaError =
+      error?.status === 429 ||
+      error?.code === 'insufficient_quota' ||
+      error?.error?.code === 'insufficient_quota';
 
     return jsonResponse(500, {
       error: quotaError
-        ? "AI responses are temporarily unavailable while Barry updates the AI billing. Please call or text 709-641-1028 for now."
-        : "AI responses are temporarily unavailable right now. Please try again in a minute, or call/text 709-641-1028.",
+        ? 'AI responses are temporarily unavailable while Barry updates the AI billing. Please call or text 709-641-1028 for now.'
+        : 'AI responses are temporarily unavailable right now. Please try again in a minute, or call/text 709-641-1028.',
     });
   }
 };

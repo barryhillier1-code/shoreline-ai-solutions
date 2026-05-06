@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #edf2f7;
+  --foreground: #0a1628;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --border: rgba(15, 23, 42, 0.08);
+  --brand-deep: #091a2f;
+  --brand-slate: #475569;
+  --brand-cyber: #0ea5ff;
+  --brand-foam: #e0f2fe;
+  --brand-mist: #cbd5e1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-brand-cyber: var(--brand-cyber);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-slate: var(--brand-slate);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 255, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(71, 85, 105, 0.14), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #edf2f7 38%, #e2e8f0 100%);
+  color: var(--foreground);
+}
+
+::selection {
+  background: rgba(14, 165, 255, 0.28);
+  color: #091a2f;
+}
+
+a {
+  text-underline-offset: 0.22em;
+}
+
+.coast-card {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  box-shadow: 0 28px 70px rgba(15, 39, 65, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.coast-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.7)),
+    linear-gradient(135deg, rgba(83, 166, 200, 0.08), rgba(232, 207, 170, 0.08));
+  border: 1px solid var(--border);
+}

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /node_modules/
+Disallow: /private/
+Disallow: /drafts/
+
+Sitemap: https://discovery-bay-charters-shoreline.netlify.app/sitemap.xml

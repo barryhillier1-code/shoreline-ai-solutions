@@ -1,8 +1,31 @@
 {
-  "name": "shoreline-ai-solutions",
-  "version": "1.0.0",
-  "description": "Shoreline AI Solutions static site",
+  "name": "master-template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "write-build": "node write-build.js",
+    "prepare-deploy": "node write-build.js && npm run build"
+  },
   "dependencies": {
-    "openai": "^4.0.0"
+    "lucide-react": "^1.11.0",
+    "next": "16.2.4",
+    "openai": "^4.104.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
