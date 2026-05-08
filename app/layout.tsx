@@ -6,6 +6,9 @@ import { siteConfig } from '@/lib/siteConfig';
 import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import './globals.css';
 
+const GA_MEASUREMENT_ID = 'PASTE_GA4_ID_HERE';
+const CLARITY_PROJECT_ID = 'PASTE_CLARITY_HERE';
+
 const manrope = Manrope({
   variable: '--font-manrope',
   subsets: ['latin'],
@@ -48,6 +51,31 @@ export default function RootLayout({
     <html lang="en-CA" className={[manrope.variable, cormorant.variable, 'h-full'].join(' ')}>
       <head>
         <Schema />
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+            `,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);
+                t.async=1;
+                t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];
+                y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
         {netlifyFormDefinitions.map((definition) => (
