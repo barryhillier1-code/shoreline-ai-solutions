@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import GoogleAnalyticsRouteTracker from '@/components/GoogleAnalyticsRouteTracker';
 import Schema from '@/components/Schema';
 import ShorelineChatWidget from '@/components/ShorelineChatWidget';
 import StickyNavbar from '@/components/StickyNavbar';
@@ -7,6 +9,7 @@ import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import './globals.css';
 
 const GTM_CONTAINER_ID = 'GTM-5DZSJ24K';
+const GA_MEASUREMENT_ID = 'G-1HPNGY4KR5';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -61,6 +64,18 @@ export default function RootLayout({
             `,
           }}
         />
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = window.gtag || gtag;
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
         <noscript>
@@ -88,6 +103,9 @@ export default function RootLayout({
             ))}
           </form>
         ))}
+        <Suspense fallback={null}>
+          <GoogleAnalyticsRouteTracker measurementId={GA_MEASUREMENT_ID} />
+        </Suspense>
         <StickyNavbar businessName={siteConfig.businessName} />
         {children}
         <ShorelineChatWidget />
